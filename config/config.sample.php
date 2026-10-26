@@ -23,6 +23,11 @@ return [
     // Nur lokal: Mails als .eml-Dateien in dieses Verzeichnis schreiben statt per SMTP senden. In Produktion leer lassen.
     'mail_dir' => '',
 
+    // Geheimer Schlüssel für „Angemeldet bleiben“ (mind. 32 Zeichen, zufällig). Erzeugen z. B. mit:
+    //   php -r "echo bin2hex(random_bytes(32));"
+    // Wird er geändert, sind alle „Angemeldet bleiben“-Anmeldungen ungültig. Leer = Funktion aus.
+    'secret' => '',
+
     // Gültigkeit der Login-Links in Minuten
     'magic_link_minutes' => 30,
 ];

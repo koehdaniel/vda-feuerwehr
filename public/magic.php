@@ -9,5 +9,8 @@ if (!$user) {
 }
 
 login_user((int)$user['id'], true);
+if (!empty($_GET['r'])) {
+    remember_user((int)$user['id']);
+}
 flash('ok', $user['password_hash'] === null ? 'Angemeldet. Wenn du magst, kannst du unten ein Passwort setzen.' : 'Angemeldet.');
 redirect('profil.php');

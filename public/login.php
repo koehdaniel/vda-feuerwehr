@@ -15,7 +15,7 @@ if (is_post()) {
         $user = $email !== '' ? user_by_email($email) : null;
         if ($user) {
             try {
-                send_magic_link($user);
+                send_magic_link($user, post_bool('remember') === 1);
             } catch (Throwable $ex) {
                 error_log('Login-Link an ' . $email . ' fehlgeschlagen: ' . $ex->getMessage());
             }
@@ -28,6 +28,9 @@ if (is_post()) {
     $user = attempt_password_login($email, (string)($_POST['password'] ?? ''));
     if ($user) {
         login_user((int)$user['id']);
+        if (post_bool('remember')) {
+            remember_user((int)$user['id']);
+        }
         redirect('index.php');
     }
     flash('error', 'Anmeldung fehlgeschlagen. Kein Passwort oder vergessen? Dann „Login-Link per Mail“ nutzen.');
@@ -43,6 +46,10 @@ render_header('Anmelden');
 
     <label for="password">Passwort</label>
     <input type="password" id="password" name="password" autocomplete="current-password">
+
+    <?php if (remember_enabled()): ?>
+        <label class="check"><input type="checkbox" name="remember" value="1" checked> Angemeldet bleiben</label>
+    <?php endif; ?>
 
     <button class="btn" type="submit">Anmelden</button>
     <button class="btn btn-secondary" type="submit" name="magic" value="1" formnovalidate>Login-Link per Mail</button>

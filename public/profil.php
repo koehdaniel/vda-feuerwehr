@@ -60,6 +60,10 @@ if (is_post()) {
             flash('error', 'Die beiden Passwörter stimmen nicht überein.');
         } else {
             db_exec('UPDATE users SET password_hash = ? WHERE id = ?', [password_hash($new, PASSWORD_DEFAULT), $user['id']]);
+            // Andere Geräte werden dadurch abgemeldet, dieses bleibt angemeldet
+            if (has_remember_cookie()) {
+                remember_user((int)$user['id']);
+            }
             flash('ok', 'Passwort gespeichert.');
         }
     }
