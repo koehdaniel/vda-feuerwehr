@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#b3141b">
     <title><?= e($title) ?> – AG-Bescheinigungen</title>
+    <link rel="icon" href="favicon.ico">
     <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
 <header class="topbar">
     <a class="brand" href="index.php">
-        <span class="brand-mark" aria-hidden="true"></span>
+        <img class="brand-mark" src="favicon.ico" alt="" aria-hidden="true">
         AG-Bescheinigungen
     </a>
     <?php if ($user): ?>

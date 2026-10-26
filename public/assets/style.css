@@ -32,7 +32,7 @@ body {
 }
 .topbar a { color: #fff; text-decoration: none; }
 .brand { font-weight: 700; display: flex; align-items: center; gap: 10px; }
-.brand-mark { width: 14px; height: 14px; border-radius: 3px; background: #fff; }
+.brand-mark { width: 24px; height: 24px; border-radius: 4px; display: block; }
 .logout { font-size: 15px; opacity: .9; }
 
 .tabs {
