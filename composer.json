@@ -1,0 +1,16 @@
+{
+    "name": "feuerwehr/vda-bescheinigungen",
+    "description": "Arbeitgeberbescheinigungen (Verdienstausfall) für Einsatzkräfte einer Freiwilligen Feuerwehr",
+    "type": "project",
+    "require": {
+        "php": ">=8.1",
+        "phpmailer/phpmailer": "^6.9",
+        "dompdf/dompdf": "^3.1"
+    },
+    "config": {
+        "platform": {
+            "php": "8.1.0"
+        },
+        "optimize-autoloader": true
+    }
+}

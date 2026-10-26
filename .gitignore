@@ -1,0 +1,8 @@
+/config/config.php
+/storage/tmp/*
+!/storage/tmp/.gitkeep
+/composer.phar
+/storage/logo*
+/storage/bescheinigungen/
+/vendor/
+/.impeccable/
