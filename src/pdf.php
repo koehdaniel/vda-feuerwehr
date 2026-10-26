@@ -41,8 +41,11 @@ function certificate_html(
     $pnr = trim($person['personalnummer'] ?? '');
 
     $values = [
-        'wehr'                   => e(setting('wehr')),
+        // {ort} darf auch im Namen der Feuerwehr stehen, z. B. „Freiwillige Feuerwehr {ort}“
+        'wehr'                   => e(fill(setting('wehr'), ['ort' => setting('ort')])),
         'ort'                    => e(setting('ort')),
+        // Ohne Arbeitgeber entfällt „An:“ (die Zeile bleibt als Leerraum, damit nichts verrutscht)
+        'an'                     => $address ? 'An:' : '&nbsp;',
         // Ohne Arbeitgeber bleibt Platz für vier Zeilen, um die Anschrift von Hand einzutragen
         'arbeitgeber_adresse'    => $address ? implode('<br>', array_map('e', $address)) : '&nbsp;<br>&nbsp;<br>&nbsp;<br>&nbsp;',
         'datum'                  => e($erstellt->format('d.m.Y')),
@@ -61,7 +64,7 @@ function certificate_html(
         'unterzeichner_funktion' => e($signer['funktion'] ?? ''),
     ];
 
-    $kopf = nl2br(e(setting('briefkopf')), false);
+    $kopf = nl2br(e(fill(setting('briefkopf'), ['ort' => setting('ort')])), false);
     $logoFile = logo_file();
     $logo = $logoFile
         ? '<td style="width: 38mm; text-align: right; vertical-align: middle;"><img src="' . image_data_uri($logoFile) . '" style="width: 36mm;" alt=""></td>'

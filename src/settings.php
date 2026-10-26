@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 const DEFAULT_VORLAGE = <<<'HTML'
-<p>An:</p>
+<p>{an}</p>
 <p>{arbeitgeber_adresse}</p>
 <p>&nbsp;</p>
 <p style="text-align: right;">{ort} {datum}</p>
@@ -33,11 +33,11 @@ function settings_fields(): array
 {
     return [
         'Allgemein' => [
-            'wehr' => ['Name der Feuerwehr – Platzhalter {wehr}', 'text', 'Freiwillige Feuerwehr Musterstadt'],
+            'wehr' => ['Name der Feuerwehr – Platzhalter {wehr} (darf {ort} enthalten)', 'text', 'Freiwillige Feuerwehr Musterstadt'],
             'ort'  => ['Ort – Platzhalter {ort}', 'text', 'Musterstadt'],
         ],
         'Bescheinigung' => [
-            'briefkopf' => ['Briefkopf (links vom Logo)', 'textarea', "Freiwillige Feuerwehr\nMusterstadt"],
+            'briefkopf' => ['Briefkopf (links vom Logo, darf {ort} enthalten)', 'textarea', "Freiwillige Feuerwehr\nMusterstadt"],
             'vorlage'   => ['Text der Bescheinigung', 'html', DEFAULT_VORLAGE],
         ],
         'Mail mit Bescheinigung' => [
@@ -61,6 +61,7 @@ function certificate_placeholders(): array
     return [
         '{wehr}'                   => 'Name der Feuerwehr (oben unter „Allgemein“)',
         '{ort}'                    => 'Ort (oben unter „Allgemein“)',
+        '{an}'                     => '„An:“ – oder nichts, wenn kein Arbeitgeber hinterlegt ist',
         '{arbeitgeber_adresse}'    => 'Anschrift des Arbeitgebers (mehrzeilig)',
         '{datum}'                  => 'Erstelldatum',
         '{vorname}'                => 'Vorname der Einsatzkraft',
