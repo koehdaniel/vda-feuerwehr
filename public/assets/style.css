@@ -151,6 +151,15 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--red); outli
 .list .main { flex: 1; min-width: 0; }
 .list .sub { display: block; color: var(--muted); font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .list .sub-warn { color: var(--red); }
+.cert-row { display: flex; align-items: center; gap: 8px; }
+.cert-row > a { flex: 1; min-width: 0; }
+.cert-remove .btn { margin: 0; }
+.cert-removed { display: flex; align-items: center; gap: 12px; flex: 1; padding: 12px 0; color: var(--muted); }
+.cert-removed .main { text-decoration: line-through; }
+.cert-removed .sub { text-decoration: none; display: block; }
+
+.btn-danger { background: var(--red-dark); }
+.danger-zone { margin-top: 40px; border: 1px solid var(--red); }
 
 .badge {
     display: inline-block;

@@ -8,6 +8,6 @@ if (!$user) {
     redirect('login.php');
 }
 
-login_user((int)$user['id']);
-flash('ok', 'Angemeldet. Am besten gleich unten ein Passwort setzen.');
+login_user((int)$user['id'], true);
+flash('ok', $user['password_hash'] === null ? 'Angemeldet. Wenn du magst, kannst du unten ein Passwort setzen.' : 'Angemeldet.');
 redirect('profil.php');

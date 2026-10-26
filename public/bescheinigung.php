@@ -5,7 +5,7 @@ require __DIR__ . '/../src/bootstrap.php';
 // Einzelne Bescheinigung herunterladen – für die eigene Person oder als Admin
 $user = require_login();
 
-$cert = db_one('SELECT * FROM einsatz_personen WHERE id = ?', [(int)($_GET['id'] ?? 0)]);
+$cert = db_one('SELECT * FROM einsatz_personen WHERE id = ? AND deleted_at IS NULL', [(int)($_GET['id'] ?? 0)]);
 if (!$cert || ((int)$cert['user_id'] !== (int)$user['id'] && !$user['is_admin'])) {
     http_response_code(404);
     exit('Bescheinigung nicht gefunden.');

@@ -52,7 +52,7 @@ if (is_post()) {
 
     if (isset($_POST['save_password'])) {
         $new = (string)($_POST['password_new'] ?? '');
-        if ($user['password_hash'] !== null && !password_verify((string)($_POST['password_current'] ?? ''), $user['password_hash'])) {
+        if (needs_current_password($user) && !password_verify((string)($_POST['password_current'] ?? ''), $user['password_hash'])) {
             flash('error', 'Das aktuelle Passwort stimmt nicht.');
         } elseif (strlen($new) < 8) {
             flash('error', 'Das neue Passwort muss mindestens 8 Zeichen lang sein.');
@@ -128,7 +128,7 @@ render_header('Meine Daten');
 <form method="post" class="card">
     <?= csrf_field() ?>
     <h2><?= $user['password_hash'] === null ? 'Passwort setzen' : 'Passwort ändern' ?></h2>
-    <?php if ($user['password_hash'] !== null): ?>
+    <?php if (needs_current_password($user)): ?>
         <label for="password_current">Aktuelles Passwort</label>
         <input type="password" id="password_current" name="password_current" autocomplete="current-password" required>
     <?php endif; ?>

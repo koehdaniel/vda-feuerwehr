@@ -21,7 +21,7 @@ if (is_post()) {
             }
         }
         // Immer dieselbe Meldung, damit nicht erkennbar ist, welche Adressen existieren
-        flash('info', 'Falls für diese Adresse noch kein Passwort gesetzt ist, wurde ein Login-Link verschickt. Bitte Postfach prüfen.');
+        flash('info', 'Falls die Adresse bei uns hinterlegt ist, wurde ein Login-Link verschickt. Bitte Postfach prüfen.');
         redirect('login.php');
     }
 
@@ -30,7 +30,7 @@ if (is_post()) {
         login_user((int)$user['id']);
         redirect('index.php');
     }
-    flash('error', 'Anmeldung fehlgeschlagen. Noch kein Passwort? Dann „Login-Link per Mail“ nutzen.');
+    flash('error', 'Anmeldung fehlgeschlagen. Kein Passwort oder vergessen? Dann „Login-Link per Mail“ nutzen.');
     redirect('login.php');
 }
 
@@ -46,6 +46,6 @@ render_header('Anmelden');
 
     <button class="btn" type="submit">Anmelden</button>
     <button class="btn btn-secondary" type="submit" name="magic" value="1" formnovalidate>Login-Link per Mail</button>
-    <p class="hint">Den Login-Link gibt es nur, solange noch kein Passwort gesetzt ist. Passwort vergessen? Wende dich an die Wehrführung.</p>
+    <p class="hint">Statt mit Passwort kannst du dich jederzeit über einen Login-Link per Mail anmelden – nur E-Mail eintragen und den Knopf tippen.</p>
 </form>
 <?php render_footer();

@@ -40,7 +40,7 @@ bin/         create-admin.php
    ```
    php bin/create-admin.php wehrfuehrer@example.de Erika Musterfrau
    ```
-   Ohne Passwort meldet sich der Admin über „Login-Link per Mail“ an und setzt danach im Profil ein Passwort.
+   Ohne Passwort meldet sich der Admin über „Login-Link per Mail“ an und kann danach im Profil ein Passwort setzen.
 7. Als Admin unter **Personen** die eigene Funktion eintragen (z. B. „Wehrführer“), dann unter **Einstellungen** Logo und Bescheinigungstext prüfen. Dazu gibt es die Vorschau-PDF. Dann unter **Personen** die Einsatzkräfte anlegen und ihnen einen Login-Link schicken.
 
 ## Lokale Entwicklung (ohne SMTP)
@@ -66,7 +66,8 @@ Ohne `php.ini` (z. B. PHP über winget) zusätzlich `-d extension_dir="<php-ordn
 ## Login
 
 - Mit E-Mail und Passwort.
-- Solange kein Passwort gesetzt ist, gibt es einen **Login-Link per Mail**, der 30 Minuten gilt. Ein Admin kann ein Passwort zurücksetzen. Danach ist wieder ein Login-Link möglich.
+- Alternativ jederzeit mit einem **Login-Link per Mail**, der 30 Minuten gilt. Das geht auch, wenn ein Passwort gesetzt ist, und hilft so bei vergessenen Passwörtern.
+- Admins können Passwörter unter **Personen** neu setzen oder löschen.
 
 ## Einstellungen und Texte
 

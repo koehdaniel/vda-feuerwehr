@@ -20,7 +20,7 @@ if (is_post()) {
             if (send_magic_link($person)) {
                 flash('ok', 'Login-Link an ' . $person['email'] . ' verschickt.');
             } else {
-                flash('error', 'Kein Login-Link möglich: Person braucht eine E-Mail, muss aktiv sein und darf noch kein Passwort haben.');
+                flash('error', 'Kein Login-Link möglich: Person braucht eine E-Mail und muss aktiv sein.');
             }
         } catch (Throwable $ex) {
             flash('error', 'Mailversand fehlgeschlagen: ' . $ex->getMessage());
@@ -138,14 +138,14 @@ render_header($p['id'] ? user_display_name($p) : 'Neue Person');
     <?php if (!$isSelf): ?>
         <h2 style="margin-top:20px">Passwort</h2>
         <p class="hint" style="margin-top:-6px">
-            <?= $p['password_hash'] !== null ? 'Ein Passwort ist gesetzt.' : 'Noch kein Passwort gesetzt – Anmeldung per Login-Link.' ?>
+            <?= $p['password_hash'] !== null ? 'Ein Passwort ist gesetzt.' : 'Noch kein Passwort gesetzt.' ?>
             Hier kannst du ein neues setzen – oder die Person tippt es selbst ein.
         </p>
         <label for="password_new">Neues Passwort <span class="hint">(mind. 8 Zeichen, leer lassen = unverändert)</span></label>
         <input type="password" id="password_new" name="password_new" autocomplete="new-password" minlength="8">
         <label class="check"><input type="checkbox" id="password_show"> Passwort anzeigen</label>
         <?php if ($p['id'] && $p['password_hash'] !== null): ?>
-            <label class="check"><input type="checkbox" name="reset_password" value="1"> Passwort löschen (danach ist wieder ein Login-Link möglich)</label>
+            <label class="check"><input type="checkbox" name="reset_password" value="1"> Passwort löschen (Anmeldung dann nur noch per Login-Link)</label>
         <?php endif; ?>
         <script>
             document.getElementById('password_show').addEventListener('change', function () {
@@ -157,11 +157,11 @@ render_header($p['id'] ? user_display_name($p) : 'Neue Person');
     <button class="btn" type="submit">Speichern</button>
 </form>
 
-<?php if ($p['id'] && $p['password_hash'] === null && $p['email'] && $p['active']): ?>
+<?php if ($p['id'] && $p['email'] && $p['active']): ?>
     <form method="post" class="card">
         <?= csrf_field() ?>
         <h2>Zugang</h2>
-        <p class="muted" style="margin:0">Noch kein Passwort gesetzt. Per Login-Link kann sich die Person anmelden und ihre Daten selbst pflegen.</p>
+        <p class="muted" style="margin:0">Per Login-Link kann sich die Person ohne Passwort anmelden und ihre Daten selbst pflegen.</p>
         <button class="btn btn-secondary" type="submit" name="send_link" value="1">Login-Link an <?= e($p['email']) ?> senden</button>
     </form>
 <?php endif; ?>

@@ -35,10 +35,18 @@ function require_admin(): array
     return $user;
 }
 
-function login_user(int $userId): void
+/** $viaLink: per Login-Link angemeldet – dann darf ein neues Passwort ohne das alte gesetzt werden. */
+function login_user(int $userId, bool $viaLink = false): void
 {
     session_regenerate_id(true);
     $_SESSION['user_id'] = $userId;
+    $_SESSION['via_link'] = $viaLink;
+}
+
+/** Muss beim Passwortändern das aktuelle Passwort eingegeben werden? */
+function needs_current_password(array $user): bool
+{
+    return $user['password_hash'] !== null && empty($_SESSION['via_link']);
 }
 
 function logout_user(): void
@@ -60,12 +68,12 @@ function attempt_password_login(string $email, string $password): ?array
 }
 
 /**
- * Verschickt einen Login-Link, aber nur an aktive Benutzer ohne Passwort.
+ * Verschickt einen Login-Link an aktive Benutzer mit E-Mail – auch wenn ein Passwort gesetzt ist.
  * Gibt true zurück, wenn eine Mail rausging.
  */
 function send_magic_link(array $user): bool
 {
-    if (!$user['active'] || $user['password_hash'] !== null || empty($user['email'])) {
+    if (!$user['active'] || empty($user['email'])) {
         return false;
     }
     $minutes = (int)(config()['magic_link_minutes'] ?? 30);

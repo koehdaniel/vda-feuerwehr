@@ -71,10 +71,15 @@ CREATE TABLE IF NOT EXISTS einsatz_personen (
     status      VARCHAR(10)  NOT NULL DEFAULT 'ok',
     status_text VARCHAR(500) NOT NULL DEFAULT '',
     created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY uq_einsatz_personen (einsatz_id, user_id),
+    -- nachträglich entfernt: PDF ist gelöscht, die Zeile bleibt als Vermerk im Einsatz stehen
+    deleted_at  DATETIME     NULL,
+    deleted_by  INT UNSIGNED NULL,
+    -- kein UNIQUE: eine entfernte Person kann erneut erfasst werden
+    KEY ix_einsatz_personen (einsatz_id, user_id),
     CONSTRAINT fk_ep_einsatz FOREIGN KEY (einsatz_id) REFERENCES einsaetze (id) ON DELETE CASCADE,
     CONSTRAINT fk_ep_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
-    CONSTRAINT fk_ep_signed_by FOREIGN KEY (signed_by) REFERENCES users (id) ON DELETE SET NULL
+    CONSTRAINT fk_ep_signed_by FOREIGN KEY (signed_by) REFERENCES users (id) ON DELETE SET NULL,
+    CONSTRAINT fk_ep_deleted_by FOREIGN KEY (deleted_by) REFERENCES users (id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Texte für PDF und Mails. Fehlende Schlüssel fallen auf die Standardwerte in src/settings.php zurück.

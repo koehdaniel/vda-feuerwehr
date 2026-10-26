@@ -13,20 +13,26 @@ function einsatz_by_id(int $id): ?array
 function einsaetze_all(): array
 {
     return db_all(
-        'SELECT e.*, (SELECT COUNT(*) FROM einsatz_personen ep WHERE ep.einsatz_id = e.id) AS personen
+        'SELECT e.*, (SELECT COUNT(*) FROM einsatz_personen ep WHERE ep.einsatz_id = e.id AND ep.deleted_at IS NULL) AS personen
          FROM einsaetze e ORDER BY e.von DESC'
     );
 }
 
-/** Ausgestellte Bescheinigungen eines Einsatzes mit Name der Person und des Unterzeichners. */
-function einsatz_certificates(int $einsatzId): array
+/**
+ * Bescheinigungen eines Einsatzes mit Name der Person, des Unterzeichners und ggf. dessen, der sie entfernt hat.
+ * Entfernte Einträge sind nur dabei, wenn $withDeleted gesetzt ist.
+ */
+function einsatz_certificates(int $einsatzId, bool $withDeleted = false): array
 {
     return db_all(
-        "SELECT ep.*, u.vorname, u.nachname, CONCAT(s.vorname, ' ', s.nachname) AS signed_by_name
+        "SELECT ep.*, u.vorname, u.nachname, CONCAT(s.vorname, ' ', s.nachname) AS signed_by_name,
+                CONCAT(d.vorname, ' ', d.nachname) AS deleted_by_name
          FROM einsatz_personen ep
          JOIN users u ON u.id = ep.user_id
          LEFT JOIN users s ON s.id = ep.signed_by
-         WHERE ep.einsatz_id = ? ORDER BY u.nachname, u.vorname",
+         LEFT JOIN users d ON d.id = ep.deleted_by
+         WHERE ep.einsatz_id = ?" . ($withDeleted ? '' : ' AND ep.deleted_at IS NULL') . '
+         ORDER BY u.nachname, u.vorname, ep.created_at',
         [$einsatzId]
     );
 }
@@ -37,7 +43,7 @@ function user_certificates(int $userId, int $limit = 10): array
     return db_all(
         'SELECT ep.*, e.von, e.bis, e.stichwort
          FROM einsatz_personen ep JOIN einsaetze e ON e.id = ep.einsatz_id
-         WHERE ep.user_id = ? ORDER BY e.von DESC LIMIT ' . $limit,
+         WHERE ep.user_id = ? AND ep.deleted_at IS NULL ORDER BY e.von DESC LIMIT ' . $limit,
         [$userId]
     );
 }
@@ -146,6 +152,70 @@ function issue_certificates(array $einsatz, array $people, array $signer, string
         $stmt->execute([$einsatzId, $userId, $signer['id'], $file, $print ? $druckFile : null, $status, $text]);
     }
     return count($rows);
+}
+
+/**
+ * Entfernt eine Bescheinigung nachträglich: Das PDF wird gelöscht, die Druck-PDF ohne diese Seite neu
+ * zusammengesetzt und die Zeile als entfernt markiert (sie bleibt im Einsatz als Vermerk sichtbar).
+ */
+function remove_certificate(array $cert, array $admin): void
+{
+    $dir = CERT_DIR . '/' . (int)$cert['einsatz_id'];
+    if (is_file($dir . '/' . basename($cert['pdf_datei']))) {
+        unlink($dir . '/' . basename($cert['pdf_datei']));
+    }
+    db_exec(
+        'UPDATE einsatz_personen SET deleted_at = ?, deleted_by = ?, druck_datei = NULL WHERE id = ?',
+        [date('Y-m-d H:i:s'), $admin['id'], $cert['id']]
+    );
+    if ($cert['druck_datei']) {
+        rebuild_print_file((int)$cert['einsatz_id'], $cert['druck_datei']);
+    }
+}
+
+/** Setzt eine Druck-PDF aus den Einzel-PDFs der (noch nicht entfernten) Personen neu zusammen. */
+function rebuild_print_file(int $einsatzId, string $druckFile): void
+{
+    $dir = CERT_DIR . '/' . $einsatzId;
+    $files = array_column(
+        db_all(
+            'SELECT ep.pdf_datei FROM einsatz_personen ep JOIN users u ON u.id = ep.user_id
+             WHERE ep.einsatz_id = ? AND ep.druck_datei = ? AND ep.deleted_at IS NULL ORDER BY u.nachname, u.vorname',
+            [$einsatzId, $druckFile]
+        ),
+        'pdf_datei'
+    );
+    $target = $dir . '/' . basename($druckFile);
+    if (!$files) {
+        if (is_file($target)) {
+            unlink($target);
+        }
+        return;
+    }
+    $pdf = new \setasign\Fpdi\Fpdi();
+    foreach ($files as $file) {
+        $pages = $pdf->setSourceFile($dir . '/' . basename($file));
+        for ($i = 1; $i <= $pages; $i++) {
+            $tpl = $pdf->importPage($i);
+            $size = $pdf->getTemplateSize($tpl);
+            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
+            $pdf->useTemplate($tpl);
+        }
+    }
+    file_put_contents($target, $pdf->Output('S'));
+}
+
+/** Löscht einen Einsatz endgültig mit allen Bescheinigungen und PDFs. */
+function delete_einsatz(int $einsatzId): void
+{
+    $dir = CERT_DIR . '/' . $einsatzId;
+    foreach (glob($dir . '/*') ?: [] as $file) {
+        unlink($file);
+    }
+    if (is_dir($dir)) {
+        rmdir($dir);
+    }
+    db_exec('DELETE FROM einsaetze WHERE id = ?', [$einsatzId]);
 }
 
 /** Liefert ein abgelegtes PDF aus und beendet das Skript. */
